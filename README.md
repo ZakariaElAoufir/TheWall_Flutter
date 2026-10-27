@@ -42,10 +42,10 @@ Application mobile de réseau social développée en **Flutter** avec **Supabase
 
 ## Contributeurs
 
-| Contributeur | Partie réalisée |
-| --- | --- |
-| **Zakaria El Aoufir** | Messagerie privée (conversations, images, messages lus, modification et suppression) et gestion des amis (recherche, demandes, acceptation et refus) |
-| **Othmane** | Authentification (inscription, connexion, session) et fil de publications (affichage, « J'aime ») |
+| Contributeur | Contact | Partie réalisée |
+| --- | --- | --- |
+| **Zakaria El Aoufir** | [zakaria.elaoufir@gmail.com](mailto:zakaria.elaoufir@gmail.com) | Messagerie privée (conversations, images, messages lus, modification et suppression) et gestion des amis (recherche, demandes, acceptation et refus) |
+| **Othmane** | [othmaneal.pro@gmail.com](mailto:othmaneal.pro@gmail.com) | Authentification (inscription, connexion, session) et fil de publications (affichage, « J'aime ») |
 
 ## Stack technique
 
