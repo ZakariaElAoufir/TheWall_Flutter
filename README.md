@@ -1,177 +1,127 @@
-# 🧱 The Wall (Supabase Version)
+# The Wall
 
-A simple social wall Flutter app where users can register, log in, and post public messages in real time using **Supabase Authentication** and **Supabase Database**.
+Application mobile de réseau social développée en **Flutter** avec **Supabase** (authentification, base PostgreSQL, temps réel et stockage de fichiers). Les utilisateurs créent un compte, consultent un fil de publications, ajoutent des amis et échangent en messagerie privée, avec envoi d'images.
 
----
+> Projet académique réalisé en binôme dans le cadre de notre apprentissage de Flutter.
 
-## 🚀 Features
+## Fonctionnalités
 
-- 🔐 **User Authentication** with Supabase (Email & Password)
-- 🧱 **Public Wall** where users post messages visible to everyone
-- ⚡ **Realtime Updates** using Supabase Realtime / Streams
-- 📱 **Modern Flutter UI**
-- 🔁 **Session Persistence** thanks to Supabase Auth
+### Authentification et session
 
----
+- Inscription avec nom, prénom, nom d'utilisateur, e-mail et mot de passe ; le profil est créé dans la table `profiles`.
+- Connexion par e-mail et mot de passe, session conservée entre deux lancements.
+- Redirection automatique vers l'accueil ou l'écran de connexion selon l'état de la session.
+- Statut **en ligne / hors ligne** mis à jour à l'ouverture et à la fermeture de l'application.
+- Déconnexion.
 
-## 🧩 Tech Stack
+### Fil de publications
 
-- **Frontend:** Flutter (Dart)
-- **Backend:** Supabase  
-  - Supabase Auth  
-  - Supabase Postgres (Database)  
-  - Supabase Realtime (optional)  
-- **Architecture:** Stateful Widgets & Components
+- Fil des publications de tous les utilisateurs, du plus récent au plus ancien, mis à jour en temps réel.
+- Auteur affiché avec sa photo de profil et son statut en ligne.
+- « J'aime » sur une publication (un seul par utilisateur), avec compteur.
 
----
+### Profil
 
-## 📂 Folder Structure
+- Photo de profil, nom d'utilisateur et statut en ligne.
+- Nombre d'amis.
+- Liste de ses propres publications avec leur nombre de « J'aime ».
 
-```
+### Amis
+
+- Liste des utilisateurs qui ne sont pas encore amis, avec leur photo.
+- Envoi d'une demande d'ami, sans doublon possible.
+- Page des demandes envoyées et reçues : accepter (l'amitié est enregistrée dans les deux sens) ou refuser.
+
+### Messagerie privée
+
+- Liste des conversations avec ses amis, avec aperçu du dernier message et nombre de messages non lus.
+- Conversation privée entre deux amis.
+- Envoi de texte et d'**images** depuis la galerie, stockées dans Supabase Storage.
+- Accusé de lecture : les messages passent à « vu » à l'ouverture de la conversation.
+- Modification et suppression de ses propres messages.
+
+## Contributeurs
+
+| Contributeur | Partie réalisée |
+| --- | --- |
+| **Zakaria El Aoufir** | Messagerie privée (conversations, images, messages lus, modification et suppression) et gestion des amis (recherche, demandes, acceptation et refus) |
+| **Othmane** | Authentification (inscription, connexion, session) et fil de publications (affichage, « J'aime ») |
+
+## Stack technique
+
+- **Flutter / Dart**
+- **Supabase** :
+  - Auth : e-mail et mot de passe
+  - Base PostgreSQL et flux temps réel (`stream`)
+  - Storage : photos de profil et images des messages
+- `image_picker` pour choisir une image dans la galerie
+- `intl` pour le formatage des dates
+
+## Structure du projet
+
+```text
 lib/
- ├── main.dart                       # Supabase initialization + App root
- │
- ├── auth/
- │    ├── auth.dart                  # Listens to Supabase auth state
- │    ├── login_or_register.dart     # Switch login/register
- │    ├── login_page.dart            # Login with Supabase
- │    └── register_page.dart         # Sign up + insert into profiles table
- │
- ├── components/
- │    ├── button.dart
- │    ├── text_field.dart
- │    └── wall_post.dart             # Message UI component
- │
- └── pages/
-      └── home_page.dart             # Displays messages from Supabase
+├── main.dart                     # Initialisation Supabase, statut en ligne, routes
+├── session_manager.dart          # Passage en ligne / hors ligne
+├── auth/
+│   ├── auth.dart                 # Écoute l'état de la session
+│   └── login_or_register.dart    # Bascule connexion / inscription
+├── components/                   # Bouton, champ de texte, carte de publication
+└── pages/
+    ├── login_page.dart
+    ├── register_page.dart
+    ├── home_page.dart            # Fil de publications et « J'aime »
+    ├── profile_page.dart         # Profil, nombre d'amis, mes publications
+    ├── add_friends_page.dart     # Utilisateurs à ajouter
+    ├── follow_request_page.dart  # Demandes d'amis
+    ├── messages_page.dart        # Liste des conversations
+    └── chat_page.dart            # Conversation privée
 ```
 
----
+## Modèle de données Supabase
 
-## ⚙️ Setup & Installation
+| Table | Contenu |
+| --- | --- |
+| `profiles` | `id` (lié à Auth), `email`, `nom`, `prenom`, `username`, `avatar_url`, `online`, `created` |
+| `publications` | `id`, `profile_id`, `content`, `likes`, `created_at` |
+| `publication_likes` | `publication_id`, `profile_id` |
+| `friends` | `user_id`, `friend_id` (une ligne par sens) |
+| `follow_requests` | `id`, `sender_id`, `receiver_id`, `status`, `created_at` |
+| `messages` | `id`, `sender_id`, `receiver_id`, `content`, `image_url`, `seen`, `created_at` |
 
-### 1️⃣ Prerequisites
+Également utilisés :
 
-- Flutter SDK  
-- A configured **Supabase project**
-- Add Supabase package:
+- la fonction SQL `update_publication_likes(pub_id)`, qui met à jour le compteur de « J'aime » ;
+- les buckets Storage `profile-pictures` et `chat-pictures`.
+
+Activer la Row Level Security (RLS) et définir les politiques d'accès sur chaque table.
+
+## Installation
+
+### Prérequis
+
+- Flutter SDK (Dart 3.9 ou plus récent)
+- Un projet Supabase contenant les tables, la fonction et les buckets ci-dessus
+
+### Lancement
 
 ```bash
-flutter pub add supabase_flutter
-```
-
----
-
-### 2️⃣ Clone this repository
-
-```bash
-git clone https://github.com/ZedKaS/TheWall_Flutter.git
+git clone https://github.com/ZakariaElAoufir/TheWall_Flutter.git
 cd TheWall_Flutter
+flutter pub get
 ```
 
----
-
-### 3️⃣ Initialize Supabase in `main.dart`
+Renseigner l'URL et la clé publique (`anonKey`) de votre projet Supabase dans `lib/main.dart` :
 
 ```dart
 await Supabase.initialize(
-  url: 'https://YOUR-PROJECT.supabase.co',
-  anonKey: 'YOUR-ANON-KEY',
+  url: 'https://VOTRE-PROJET.supabase.co',
+  anonKey: 'VOTRE-ANON-KEY',
 );
 ```
 
----
+Puis lancer l'application :
 
-## 🗄️ Supabase Database Setup
-
-### Create `profiles` table
-
-```sql
-create table profiles (
-  id uuid primary key,
-  email text not null,
-  nom text,
-  prenom text,
-  username text unique,
-  created timestamp default now()
-);
+```bash
+flutter run
 ```
-
-### Create `posts` table
-
-```sql
-create table posts (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid references profiles(id),
-  content text not null,
-  created_at timestamp default now()
-);
-```
-
-Enable RLS + add proper policies in Supabase.
-
----
-
-## 🧠 How Authentication Works
-
-### 🔑 `auth.dart`
-Listens to:
-
-```dart
-Supabase.instance.client.auth.onAuthStateChange
-```
-
-If user is logged in → **HomePage**  
-Else → **LoginOrRegister**
-
----
-
-### 🔐 `login_page.dart`
-
-Handles login:
-
-```dart
-supabase.auth.signInWithPassword(
-  email: ...,
-  password: ...,
-);
-```
-
-Shows dialog messages on success/error.
-
----
-
-### 📝 `register_page.dart`
-
-1. Creates user in Supabase Auth  
-2. Inserts profile into table `profiles`
-
-```dart
-supabase.from('profiles').insert({...});
-```
-
----
-
-## 📸 Screens Overview
-
-| Screen | Description |
-|--------|--------------|
-| 🔐 Login / Register | Supabase Auth |
-| 🧱 HomePage | Displays posts |
-| 🚪 Logout | Ends session |
-
----
-
-## 🌟 Future Improvements
-
-- Add profile pictures (Supabase Storage)  
-- Likes & comments system  
-- Realtime notifications  
-- Dark Mode  
-- Better timestamp formatting  
-
----
-
-## 📝 License
-
-This project is licensed under the MIT License — feel free to modify and share.
